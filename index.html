@@ -3,21 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benim Sohbet Sitem</title>
+    <title>Canlı Sohbet Odası</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h1>Sohbet Odası 💬</h1>
+    <div class="chat-container">
+        <!-- Üst Bilgi ve Çevrim İçi Sayacı -->
+        <div class="chat-header">
+            <h2>Sohbet Odası</h2>
+            <div class="online-status">
+                <span class="dot"></span> Çevrim içi: <span id="online-count">1</span>
+            </div>
+        </div>
 
-    <div id="chat-box">
-        <p><b>Sistem:</b> Sohbet odasına hoş geldin!</p>
+        <!-- Mesajların Görüneceği Alan -->
+        <div id="chat-box" class="chat-box"></div>
+
+        <!-- Mesaj Yazma Alanı -->
+        <div class="chat-input-area">
+            <input type="text" id="message-input" placeholder="Mesajınızı yazın...">
+            <button id="send-btn">Gönder</button>
+        </div>
     </div>
-
-    <input type="text" id="message-input" placeholder="Mesajını yaz...">
-    <button id="send-btn">Gönder</button>
 
     <script src="script.js"></script>
 </body>
 </html>
-
