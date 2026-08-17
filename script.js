@@ -1,30 +1,66 @@
-const sendBtn = document.getElementById('send-btn');
-const messageInput = document.getElementById('message-input');
-const chatBox = document.getElementById('chat-box');
-const onlineCountSpan = document.getElementById('online-count');
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-// Siteye ilk girişte kullanıcı adı isteyelim
-let kullaniciAdi = prompt("Lütfen sohbet için bir kullanıcı adı girin:") || "Misafir";
+// Firebase yapılandırman
+const firebaseConfig = {
+  apiKey: "AIzaSyAyBLGudgl1THqUEAqqo6GkjjRozWT_dL4",
+  authDomain: "sohbet-odasi-9722b.firebaseapp.com",
+  projectId: "sohbet-odasi-9722b",
+  storageBucket: "sohbet-odasi-9722b.firebasestorage.app",
+  messagingSenderId: "347482470481",
+  appId: "1:347482470481:web:7bfe14198f95d4cadaa070",
+  measurementId: "G-YQ0YD1SKHG"
+};
 
-// Giriş yapıldığını sisteme bildiren hoş geldin mesajı
-const welcomeMsg = document.createElement('p');
-welcomeMsg.innerHTML = `<i>Sisteme <b>${kullaniciAdi}</b> olarak katıldınız.</i>`;
-welcomeMsg.style.color = '#888';
-chatBox.appendChild(welcomeMsg);
+// Firebase başlatma
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-function mesajGonder() {
-    const text = messageInput.value;
-    if (text.trim() !== "") {
-        const newMsg = document.createElement('p');
-        newMsg.innerHTML = `<b>${kullaniciAdi}:</b> ${text}`;
-        chatBox.appendChild(newMsg);
-        messageInput.value = "";
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
+// Kullanıcı adı alma
+let username = prompt("Lütfen kullanıcı adınızı girin:") || "Misafir";
+
+// HTML elementlerini seçme
+const messageInput = document.getElementById("message-input");
+const sendButton = document.getElementById("send-btn");
+const messagesContainer = document.getElementById("messages-container");
+
+// Mesaj gönderme fonksiyonu
+function sendMessage() {
+    const text = messageInput.value.trim();
+    if (text === "") return;
+
+    // Veritabanına mesajı gönder
+    push(ref(db, 'messages'), {
+        username: username,
+        text: text,
+        timestamp: Date.now()
+    });
+
+    messageInput.value = "";
 }
 
-sendBtn.addEventListener('click', mesajGonder);
-messageInput.addEventListener('keydown', (e) => { 
-    if(e.key === 'Enter') mesajGonder(); 
-});
+// Gönder butonuna tıklama veya Enter tuşu ile gönderme
+if (sendButton) {
+    sendButton.addEventListener("click", sendMessage);
+}
+if (messageInput) {
+    messageInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            sendMessage();
+        }
+    });
+}
 
+// Veritabanından anlık mesajları dinleme ve ekrana yazdırma
+onChildAdded(ref(db, 'messages'), (snapshot) => {
+    const data = snapshot.val();
+    if (messagesContainer) {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message-item";
+        messageDiv.innerHTML = `<strong>${data.username}:</strong> ${data.text}`;
+        messagesContainer.appendChild(messageDiv);
+        
+        // Otomatik en alta kaydır
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+});
